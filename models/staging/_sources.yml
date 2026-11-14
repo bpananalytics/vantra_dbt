@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: core
+    schema: core
+    description: "Raw uploads. Sandbox tables expire after 60 days — reload from the original CSVs."
+    tables:
+      - name: main
+      - name: country
