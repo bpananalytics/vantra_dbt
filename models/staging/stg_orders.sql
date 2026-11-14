@@ -1,1 +1,19 @@
-select * from {{ source('core', 'main') }}
+select 
+    CAST(user_id AS STRING) AS user_id,
+    CAST(order_id AS STRING) AS order_id,
+    CAST(purchase_ts AS STRING) AS purchase_ts,
+    CAST(ship_ts AS STRING) AS ship_ts,
+    CAST(delivery_ts AS STRING) AS delivery_ts,
+    CAST(refund_ts AS STRING) AS refund_ts,
+    CAST(product_name AS STRING) AS product_name,
+    CAST(product_id AS STRING) AS product_id,
+    CAST(usd_price AS STRING) AS usd_price,
+    CAST(local_price AS STRING) AS local_price,
+    CAST(currency AS STRING) AS currency,
+    CAST(purchase_platform AS STRING) AS purchase_platform,
+    CAST(marketing_channel AS STRING) AS marketing_channel,
+    CAST(account_creation_method AS STRING) AS account_creation_method,
+    CAST(country_code AS STRING) AS country_code,
+    CAST(loyalty_program AS STRING) AS loyalty_program,
+    CAST(created_on AS STRING) AS created_on
+from {{ source('core', 'main') }}
