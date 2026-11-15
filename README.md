@@ -1,10 +1,10 @@
 # Vantra dbt Pipeline
 
-📊 **Business analysis:** Findings and recommendations, currently being rebuilt using dbt models → [**View the Vantra analysis**](https://github.com/bpananalytics/Vantra_Electronics_Analysis)
+📊 **Business analysis:** Findings and recommendations → [**View the Vantra analysis**](https://github.com/bpananalytics/Vantra_Electronics_Analysis)
 
 📋 **Roadmap and sprint tracking:** [**Vantra project board**](https://github.com/users/bpananalytics/projects/1/views/1)
 
-An analytics engineering pipeline built with **dbt** and **BigQuery**, transforming raw e-commerce order data into clean, tested, analysis-ready tables. 
+An analytics engineering pipeline re-built using **dbt** and **BigQuery**, transforming raw e-commerce order data into clean, tested, analysis-ready tables. 
 
 ## Business Question
 
