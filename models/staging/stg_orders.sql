@@ -1,3 +1,4 @@
+with source as (
 select 
     CAST(user_id AS STRING) AS user_id,
     CAST(order_id AS STRING) AS order_id,
@@ -16,4 +17,6 @@ select
     CAST(country_code AS STRING) AS country_code,
     CAST(loyalty_program AS STRING) AS loyalty_program,
     CAST(created_on AS STRING) AS created_on
-from {{ source('core', 'main') }}
+from {{ source('core', 'main') }})
+
+select distinct * from source
