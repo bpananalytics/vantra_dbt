@@ -1,0 +1,81 @@
+version: 2
+
+models: 
+  - name: stg_orders
+    description: "Cleaned orders from core.main"
+    columns: 
+      - name: order_id
+        data_tests: 
+          - not_null
+      - name: user_id
+        data_tests: 
+          - not_null
+      - name: ship_date
+        data_tests: 
+          - not_null
+      - name: delivery_date
+        data_tests: 
+          - not_null         
+      - name: account_created_date
+        data_tests: 
+          - not_null
+      - name: is_zero_price
+        data_tests: 
+          - not_null
+      - name: is_missing_price
+        data_tests: 
+          - not_null
+      - name: is_refunded
+        data_tests: 
+          - not_null
+      - name: is_loyalty_member
+        data_tests: 
+          - not_null
+
+      - name: purchase_date
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: usd_price
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: local_price
+        data_tests:
+          - not_null
+      - name: currency
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: country_code
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+
+
+      - name: product_name
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - 'Thinkpad Laptop'
+                  - 'Samsung Webcam'
+                  - 'Apple Airpods Headphones'
+                  - '27in 4K Gaming Monitor'
+                  - 'Apple Iphone'
+                  - 'Samsung Charging Cable Pack'
+                  - 'Macbook Air Laptop'
+                  - 'Bose Soundsport Headphones'
+          - not_null
+          
+      - name: purchase_platform
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - 'website'
+                  - 'mobile app'
