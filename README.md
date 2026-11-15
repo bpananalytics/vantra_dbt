@@ -33,10 +33,6 @@ dbt tests check for nulls, accepted values, and [relationships]. Known data gaps
 ## Key decisions
 - Flagged questionable rows instead of deleting them
 - Used NUMERIC for prices to avoid float rounding
-- [Add as you go]
-
-## Findings
-[Results of the business question — add after the marts are built]
 
 ## Tools
 dbt Cloud · BigQuery · GitHub
