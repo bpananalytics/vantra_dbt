@@ -35,6 +35,15 @@ safe_cast(delivery_ts as date) as delivery_date,
 safe_cast(refund_ts as date)   as refund_date,
 safe_cast(created_on as date)  as account_created_date
 
-from deduplicated)
-    
-select * except(purchase_ts, ship_ts, delivery_ts, refund_ts, created_on) from parsed
+from deduplicated),
+
+std_product as (select * except (product_name),
+    case when product_name like ('%monitor%') then '27in 4K Gaming Monitor'
+    else initcap(product_name)
+    end as product_name 
+from parsed
+)
+
+
+select * except(purchase_ts, ship_ts, delivery_ts, refund_ts, created_on) from std_product
+
