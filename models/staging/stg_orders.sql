@@ -27,6 +27,36 @@ case
     when purchase_ts like '%:%' then safe.parse_date('%m/%d/%Y',split(purchase_ts,' ')[safe_offset(0)])
   else
     safe.parse_date('%m/%d/%Y',purchase_ts)
-  end as purchase_date from deduplicated)
+  end as purchase_date,
+
+case 
+    when ship_ts like "%.%" then DATE_ADD(DATE '1899-12-30', INTERVAL (safe_cast(split(ship_ts,'.')[safe_offset(0)] as int64)) day)
+    when ship_ts like '%:%' then safe.parse_date('%m/%d/%Y',split(ship_ts,' ')[safe_offset(0)])
+  else
+    safe.parse_date('%m/%d/%Y',ship_ts)
+  end as ship_date,
+
+case 
+    when delivery_ts like "%.%" then DATE_ADD(DATE '1899-12-30', INTERVAL (safe_cast(split(delivery_ts,'.')[safe_offset(0)] as int64)) day)
+    when delivery_ts like '%:%' then safe.parse_date('%m/%d/%Y',split(delivery_ts,' ')[safe_offset(0)])
+  else
+    safe.parse_date('%m/%d/%Y',delivery_ts)
+  end as delivery_date,
+
+case 
+    when refund_ts like "%.%" then DATE_ADD(DATE '1899-12-30', INTERVAL (safe_cast(split(refund_ts,'.')[safe_offset(0)] as int64)) day)
+    when refund_ts like '%:%' then safe.parse_date('%m/%d/%Y',split(refund_ts,' ')[safe_offset(0)])
+  else
+    safe.parse_date('%m/%d/%Y',refund_ts)
+  end as refund_date,
+
+case 
+    when created_on like "%.%" then DATE_ADD(DATE '1899-12-30', INTERVAL (safe_cast(split(created_on,'.')[safe_offset(0)] as int64)) day)
+    when created_on like '%:%' then safe.parse_date('%m/%d/%Y',split(created_on,' ')[safe_offset(0)])
+  else
+    safe.parse_date('%m/%d/%Y',created_on)
+  end as account_created_date
+
+from deduplicated)
     
 select * from parsed
