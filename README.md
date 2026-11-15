@@ -2,7 +2,7 @@
 
 📊 **Business analysis:** Findings and recommendations → [**View the Vantra analysis**](https://github.com/bpananalytics/Vantra_Electronics_Analysis)
 
-📋 **Roadmap and sprint tracking:** [**Vantra project board**](https://github.com/users/bpananalytics/projects/1/views/1)
+📋 **Roadmap and sprint tracking:** Follow my progress → [**Vantra project board**](https://github.com/users/bpananalytics/projects/1/views/1)
 
 An analytics engineering pipeline re-built using **dbt** and **BigQuery**, transforming raw e-commerce order data into clean, tested, analysis-ready tables. 
 
