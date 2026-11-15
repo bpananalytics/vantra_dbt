@@ -17,6 +17,16 @@ select
     CAST(country_code AS STRING) AS country_code,
     CAST(loyalty_program AS STRING) AS loyalty_program,
     CAST(created_on AS STRING) AS created_on
-from {{ source('core', 'main') }})
+from {{ source('core', 'main') }}),
 
-select distinct * from source
+deduplicated as (select distinct * from source), /*This removes duplications by filtering distinct values*/
+
+parsed as (select *,
+case 
+    when purchase_ts like "%.%" then DATE_ADD(DATE '1899-12-30', INTERVAL (safe_cast(split(purchase_ts,'.')[safe_offset(0)] as int64)) day)
+    when purchase_ts like '%:%' then safe.parse_date('%m/%d/%Y',split(purchase_ts,' ')[safe_offset(0)])
+  else
+    safe.parse_date('%m/%d/%Y',purchase_ts)
+  end as purchase_date from deduplicated)
+    
+select * from parsed
