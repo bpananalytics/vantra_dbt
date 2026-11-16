@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: dim_countries
-    description: One row per country code, mapping each country to its sales region.
+    description: ISO country code (primary key)
     config:
       materialized: table
     columns:
