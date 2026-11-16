@@ -1,8 +1,10 @@
 # Vantra dbt Pipeline
 
-📊 **Business analysis:** Findings and recommendations built on these models → [**View the Vantra analysis**](https://github.com/bpananalytics/elist_analysis)
+📊 **Business analysis:** Findings and recommendations → [**View the Vantra analysis**](https://github.com/bpananalytics/Vantra_Electronics_Analysis)
 
-An analytics engineering pipeline built with **dbt** and **BigQuery**, transforming raw e-commerce order data into clean, tested, analysis-ready tables.
+📋 **Roadmap and sprint tracking:** Follow my progress → [**Vantra project board**](https://github.com/users/bpananalytics/projects/1/views/1)
+
+An analytics engineering pipeline re-built using **dbt** and **BigQuery**, transforming raw e-commerce order data into clean, tested, analysis-ready tables. 
 
 ## Business Question
 
@@ -15,12 +17,13 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 
 ## Pipeline
 
-    core (raw)  →  staging  →  analysis
+    core (raw)  →  staging  →  marts  →  analysis
 
 | Layer | Models | Purpose |
 |---|---|---|
 | Raw | `core.main`, `core.country` | Untouched uploads |
 | Staging | `stg_orders`, `stg_countries` | Clean and standardize each source |
+| Marts | `fct_orders`, `dim_countries` | Business-ready tables *(in development)* |
 
 ## Data Quality Issues Handled
 
