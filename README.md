@@ -60,6 +60,8 @@ dbt tests run on every build:
 
 Known data gaps in staging are set to warn rather than fail.
 
+**CI:** a dbt Cloud CI job was configured to run `dbt build` on every pull request into `main`, so no change merges without passing all tests ([see PR #27](https://github.com/bpananalytics/vantra_dbt/pull/27)).
+
 ## Key Decisions
 
 - Flagged questionable rows instead of deleting them
