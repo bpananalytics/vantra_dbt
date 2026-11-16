@@ -57,6 +57,8 @@ dbt tests run on every build:
 - **Not null and uniqueness** on keys (`country_code` in `dim_countries`; `order_id` + `refund_date` combination in `fct_orders` via `dbt_utils`)
 - **Accepted values** on region (APAC, EMEA, LATAM, NA)
 - **Referential integrity:** every order's country code must exist in `dim_countries` (geolocation pseudo-codes excluded and documented)
+- **Model contract** on `fct_orders`: column names and data types are enforced, so the table can't change shape silently
+- **Unit test** on `stg_orders` date parsing: fake rows cover all three source formats (m/d/yyyy, m/d/yyyy h:mm, Excel serial) plus junk values
 
 Known data gaps in staging are set to warn rather than fail.
 
