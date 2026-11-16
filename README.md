@@ -19,11 +19,16 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 
     core (raw)  →  staging  →  marts  →  analysis
 
+![dbt lineage graph](lineage.png)
+
 | Layer | Models | Purpose |
 |---|---|---|
 | Raw | `core.main`, `core.country` | Untouched uploads |
 | Staging | `stg_orders`, `stg_countries` | Clean and standardize each source |
 | Marts | `dim_countries`, `fct_orders` | Business-ready tables for reporting |
+
+Every model, column, and source is documented in dbt, and the lineage graph above is generated from the code itself.
+
 
 ### Marts
 
@@ -62,6 +67,7 @@ Known data gaps in staging are set to warn rather than fail.
 - Left unmappable locations without a region instead of inferring one
 - Used a left join in `fct_orders` so every order is kept, even without a matching country
 - Used `NUMERIC` for prices to avoid float rounding
+- Documented data quirks (corrupted IDs, null reasons, non-country codes) in column descriptions, not just in code comments
 - Fixed load issues in staging, leaving raw tables untouched
 
 ## Tools
