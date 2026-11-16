@@ -1,0 +1,1 @@
+select country_code, region from {{ ref("stg_countries")}}
