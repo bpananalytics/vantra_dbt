@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: dim_countries
+    description: One row per country code, mapping each country to its sales region.
+    config:
+      materialized: table
+    columns:
+
+      - name: country_code
+        description: Abbreviated codes per country
+        tests:
+          - unique
+          - not_null
+
+      - name: region
+        description: Region assigned to country
+        tests:
+          - not_null  
+          - accepted_values:
+              arguments:
+                values: ['APAC','EMEA','LATAM','NA']
+        
+          
