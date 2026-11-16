@@ -1,0 +1,22 @@
+version: 2
+
+unit_tests:
+  - name: test_purchase_date_parsing
+    description: >
+      purchase_ts arrives in three formats (m/d/yyyy, m/d/yyyy h:mm, Excel serial)
+      plus junk values. All valid formats should parse to the same DATE; junk
+      should become null.
+    model: stg_orders
+    given:
+      - input: source('core', 'main')
+        rows:
+          - {order_id: '1', purchase_ts: '6/14/2019'}
+          - {order_id: '2', purchase_ts: '6/14/2019 14:05'}
+          - {order_id: '3', purchase_ts: '43630.5833'}
+          - {order_id: '4', purchase_ts: '/N'}
+    expect:
+      rows:
+        - {order_id: '1', purchase_date: '2019-06-14'}
+        - {order_id: '2', purchase_date: '2019-06-14'}
+        - {order_id: '3', purchase_date: '2019-06-14'}
+        - {order_id: '4', purchase_date: null}
