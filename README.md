@@ -4,7 +4,7 @@
 
 📋 **Roadmap and sprint tracking:** Follow my progress → [**Vantra project board**](https://github.com/users/bpananalytics/projects/1/views/1)
 
-An analytics engineering pipeline re-built using **dbt** and **BigQuery**, transforming raw e-commerce order data into clean, tested, analysis-ready tables. 
+An analytics engineering pipeline re-built using **dbt** and **BigQuery**, transforming raw e-commerce order data into clean, tested, analysis-ready tables.
 
 ## Business Question
 
@@ -13,7 +13,7 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 ## Data
 
 - **Orders:** ~108,000 orders from an online electronics retailer, 2019–2022
-- **Country lookup:** country code → sales region mapping
+- **Country lookup:** country code → sales region mapping (countries are identified by code only; no country names in the source)
 
 ## Pipeline
 
@@ -23,10 +23,16 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 |---|---|---|
 | Raw | `core.main`, `core.country` | Untouched uploads |
 | Staging | `stg_orders`, `stg_countries` | Clean and standardize each source |
-| Marts | `fct_orders`, `dim_countries` | Business-ready tables *(in development)* |
+| Marts | `dim_countries`, `fct_orders` | Business-ready tables for reporting |
+
+### Marts
+
+- **`dim_countries`**: one row per country code, mapped to a sales region (APAC, EMEA, LATAM, NA).
+- **`fct_orders`**: one row per order and refund date, enriched with region from `dim_countries`. Intentionally wide (BigQuery is columnar, so wide tables are cheap to query); countries are split into their own dimension because region mapping needed its own cleanup and tests.
 
 ## Data Quality Issues Handled
 
+**Staging**
 - **Duplicates:** 96 exact duplicate rows removed
 - **Mixed date formats:** `purchase_ts` contained `m/d/yyyy`, `m/d/yyyy h:mm`, and Excel serial numbers; all parsed to `DATE`
 - **Product names:** 9 variants standardized to 8 products
@@ -34,17 +40,30 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 - **Corrupted IDs:** ~770 order IDs and ~600 user IDs were converted to scientific notation by Excel; unrecoverable, documented
 - **Country lookup:** header row loaded as data removed; conflicting US duplicate resolved (placeholder 'x' dropped); 'North America' standardized to NA; missing regions filled for Benin (EMEA) and Bermuda (LATAM)
 
+**Marts**
+- **Order grain:** 5 order IDs appear twice, differing only by refund date. Uniqueness is tested on `order_id` + `refund_date` rather than guessing which row is correct.
+- **Non-country location codes:** a relationships test caught 22 orders coded `EU`, `AP`, or `A1`. These are IP-geolocation codes ("Europe," "Asia/Pacific," "anonymous proxy"), not countries. They are left without a region rather than assumed, and excluded from the relationships test.
+- **Missing country codes:** 140 orders have no country code and no region.
+- **Impact:** together, orders without a region are ~0.15% of all orders; they are kept in `fct_orders` (left join) so no orders are dropped.
+
 ## Testing
 
-dbt tests check for nulls, uniqueness, and accepted values. Known data gaps are set to warn rather than fail.
+dbt tests run on every build:
+- **Not null and uniqueness** on keys (`country_code` in `dim_countries`; `order_id` + `refund_date` combination in `fct_orders` via `dbt_utils`)
+- **Accepted values** on region (APAC, EMEA, LATAM, NA)
+- **Referential integrity:** every order's country code must exist in `dim_countries` (geolocation pseudo-codes excluded and documented)
+
+Known data gaps in staging are set to warn rather than fail.
 
 ## Key Decisions
 
 - Flagged questionable rows instead of deleting them
 - Documented unrecoverable IDs rather than imputing them
+- Left unmappable locations without a region instead of inferring one
+- Used a left join in `fct_orders` so every order is kept, even without a matching country
 - Used `NUMERIC` for prices to avoid float rounding
 - Fixed load issues in staging, leaving raw tables untouched
 
 ## Tools
 
-dbt Cloud · BigQuery · GitHub
+dbt Cloud · BigQuery · dbt_utils · GitHub
