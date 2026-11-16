@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order and refund date, enriched with region.
+    config:
+      materialized: table 
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+            - order_id
+            - refund_date
+    columns:
+
+    - name: order_id
+      description: transaction id for orders
+      tests:
+        - not_null
+
+    - name: country_code 
+      description: Country code from IP geolocation. EU, AP and A1 are geolocation codes, not countries, and are left without a region
+      tests:
+          - relationships:
+              arguments:
+                  to: ref('dim_countries')
+                  field: country_code
+              config:
+                  where: "country_code not in ('EU', 'AP', 'A1')"
