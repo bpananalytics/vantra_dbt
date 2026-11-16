@@ -1,42 +1,44 @@
 version: 2
 
-models: 
+models:
+
+  # ============================================================
+  # stg_orders — cleaned orders from core.main
+  # ============================================================
   - name: stg_orders
     description: "Cleaned orders from core.main"
-    columns: 
+    columns:
+
+      # ---------- IDs ----------
       - name: order_id
-        data_tests: 
+        data_tests:
           - not_null
       - name: user_id
-        data_tests: 
+        data_tests:
           - not_null
-      - name: ship_date
-        data_tests: 
-          - not_null
-      - name: delivery_date
-        data_tests: 
-          - not_null         
-      - name: account_created_date
-        data_tests: 
-          - not_null
-      - name: is_zero_price
-        data_tests: 
-          - not_null
-      - name: is_missing_price
-        data_tests: 
-          - not_null
-      - name: is_refunded
-        data_tests: 
-          - not_null
-      - name: is_loyalty_member
-        data_tests: 
-          - not_null
+      - name: country_code
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
 
+      # ---------- Dates ----------
       - name: purchase_date
         data_tests:
           - not_null:
               config:
                 severity: warn
+      - name: ship_date
+        data_tests:
+          - not_null
+      - name: delivery_date
+        data_tests:
+          - not_null
+      - name: account_created_date
+        data_tests:
+          - not_null
+
+      # ---------- Prices ----------
       - name: usd_price
         data_tests:
           - not_null:
@@ -50,15 +52,11 @@ models:
           - not_null:
               config:
                 severity: warn
-      - name: country_code
-        data_tests:
-          - not_null:
-              config:
-                severity: warn
 
-
+      # ---------- Categories ----------
       - name: product_name
         data_tests:
+          - not_null
           - accepted_values:
               arguments:
                 values:
@@ -70,8 +68,6 @@ models:
                   - 'Samsung Charging Cable Pack'
                   - 'Macbook Air Laptop'
                   - 'Bose Soundsport Headphones'
-          - not_null
-          
       - name: purchase_platform
         data_tests:
           - accepted_values:
@@ -79,3 +75,38 @@ models:
                 values:
                   - 'website'
                   - 'mobile app'
+
+      # ---------- Flags ----------
+      - name: is_zero_price
+        data_tests:
+          - not_null
+      - name: is_missing_price
+        data_tests:
+          - not_null
+      - name: is_refunded
+        data_tests:
+          - not_null
+      - name: is_loyalty_member
+        data_tests:
+          - not_null
+
+  # ============================================================
+  # stg_countries — cleaned country → region lookup from core.country
+  # ============================================================
+  - name: stg_countries
+    description: "Country code to sales region lookup from core.country"
+    columns:
+      - name: country_code
+        data_tests:
+          - unique
+          - not_null
+      - name: region
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 'NA'
+                  - 'EMEA'
+                  - 'APAC'
+                  - 'LATAM'
