@@ -8,7 +8,7 @@ models:
     columns:
 
       - name: country_code
-        description: Abbreviated codes per country
+        description: ISO country code (primary key)
         tests:
           - unique
           - not_null

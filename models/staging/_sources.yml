@@ -3,7 +3,16 @@ version: 2
 sources:
   - name: core
     schema: core
-    description: "Raw uploads. Sandbox tables expire after 60 days — reload from the original CSVs."
+    description: >
+      Raw uploads loaded into BigQuery from CSV, left untouched; all cleaning happens
+      in staging. Sandbox tables expire after 60 days, so reload from the original CSVs.
     tables:
       - name: main
+        description: >
+          Raw orders from an online electronics retailer, 2019–2022 (~108,000 rows).
+          Contains mixed date formats, Excel-corrupted IDs, and duplicate rows,
+          all handled in stg_orders.
       - name: country
+        description: >
+          Raw country code to sales region lookup. Header row was loaded as data and
+          some regions are missing or inconsistent; all handled in stg_countries.

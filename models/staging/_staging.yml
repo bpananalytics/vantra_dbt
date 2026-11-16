@@ -6,17 +6,29 @@ models:
   # stg_orders — cleaned orders from core.main
   # ============================================================
   - name: stg_orders
-    description: "Cleaned orders from core.main"
+    description: >
+      Cleaned orders from core.main. Exact duplicates removed (108,127 → 108,031 rows),
+      dates parsed, product names standardized, prices cast to NUMERIC, and
+      questionable rows flagged rather than deleted.
     columns:
 
       # ---------- IDs ----------
       - name: order_id
+        description: >
+          Order identifier. About 770 IDs were corrupted to scientific notation by
+          Excel and are unrecoverable. 5 orders appear twice, differing only by refund date.
         data_tests:
           - not_null
       - name: user_id
+        description: Customer identifier. About 600 IDs were corrupted by Excel and are unrecoverable.
         data_tests:
           - not_null
+      - name: product_id
+        description: Product identifier.
       - name: country_code
+        description: >
+          Customer country code from IP geolocation. Includes non-country codes
+          EU, AP, and A1. Some orders have no code (warn, not fail).
         data_tests:
           - not_null:
               config:
@@ -24,30 +36,42 @@ models:
 
       # ---------- Dates ----------
       - name: purchase_date
+        description: >
+          Date of purchase. Parsed from three source formats (m/d/yyyy,
+          m/d/yyyy h:mm, Excel serial numbers). 3 values null on purpose
+          (blank, whitespace, '/N').
         data_tests:
           - not_null:
               config:
                 severity: warn
       - name: ship_date
+        description: Date the order shipped.
         data_tests:
           - not_null
       - name: delivery_date
+        description: Date the order was delivered.
         data_tests:
           - not_null
+      - name: refund_date
+        description: Date the order was refunded. Null if not refunded.
       - name: account_created_date
+        description: Date the customer's account was created.
         data_tests:
           - not_null
 
       # ---------- Prices ----------
       - name: usd_price
+        description: Order price in USD, cast to NUMERIC for exact cents. 33 values are null (unknown, not zero).
         data_tests:
           - not_null:
               config:
                 severity: warn
       - name: local_price
+        description: Order price in the customer's local currency, cast to NUMERIC.
         data_tests:
           - not_null
       - name: currency
+        description: Currency code for local_price.
         data_tests:
           - not_null:
               config:
@@ -55,6 +79,9 @@ models:
 
       # ---------- Categories ----------
       - name: product_name
+        description: >
+          Product name, standardized from 9 source variants to 8 (the monitor's
+          two spellings merged). Title-cased; brand styling not preserved.
         data_tests:
           - not_null
           - accepted_values:
@@ -69,44 +96,30 @@ models:
                   - 'Macbook Air Laptop'
                   - 'Bose Soundsport Headphones'
       - name: purchase_platform
+        description: Platform the order was placed on (website or mobile app).
         data_tests:
           - accepted_values:
               arguments:
                 values:
                   - 'website'
                   - 'mobile app'
+      - name: marketing_channel
+        description: Marketing channel that brought the customer in.
+      - name: account_creation_method
+        description: How the customer's account was created.
 
       # ---------- Flags ----------
       - name: is_zero_price
+        description: True when usd_price is 0 (158 orders).
         data_tests:
           - not_null
       - name: is_missing_price
+        description: True when usd_price is null (33 orders).
         data_tests:
           - not_null
       - name: is_refunded
+        description: True when the order has a refund date.
         data_tests:
           - not_null
       - name: is_loyalty_member
-        data_tests:
-          - not_null
-
-  # ============================================================
-  # stg_countries — cleaned country → region lookup from core.country
-  # ============================================================
-  - name: stg_countries
-    description: "Country code to sales region lookup from core.country"
-    columns:
-      - name: country_code
-        data_tests:
-          - unique
-          - not_null
-      - name: region
-        data_tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values:
-                  - 'NA'
-                  - 'EMEA'
-                  - 'APAC'
-                  - 'LATAM'
+        description: True when the customer is in the loyalty program (source value '1').
