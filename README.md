@@ -32,16 +32,18 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 - **Product names:** 9 variants standardized to 8 products
 - **Prices:** converted to `NUMERIC`; 158 $0 orders and 33 missing prices flagged
 - **Corrupted IDs:** ~770 order IDs and ~600 user IDs were converted to scientific notation by Excel; unrecoverable, documented
+- **Country lookup:** header row loaded as data removed; conflicting US duplicate resolved (placeholder 'x' dropped); 'North America' standardized to NA; missing regions filled for Benin (EMEA) and Bermuda (LATAM)
 
 ## Testing
 
-dbt tests check for nulls and accepted values. Known data gaps are set to warn rather than fail.
+dbt tests check for nulls, uniqueness, and accepted values. Known data gaps are set to warn rather than fail.
 
 ## Key Decisions
 
 - Flagged questionable rows instead of deleting them
 - Documented unrecoverable IDs rather than imputing them
 - Used `NUMERIC` for prices to avoid float rounding
+- Fixed load issues in staging, leaving raw tables untouched
 
 ## Tools
 
