@@ -123,3 +123,8 @@ models:
           - not_null
       - name: is_loyalty_member
         description: True when the customer is in the loyalty program (source value '1').
+      - name: is_ship_before_purchase
+        description: True when ship date is before purchase date 
+        data_tests:
+          - not_null
+          

@@ -97,7 +97,11 @@ flagged as (select *,
 
   case when loyalty_program='1' then true 
   else false
-  end as is_loyalty_member
+  end as is_loyalty_member,
+
+  case when ship_date < purchase_date then true 
+  else false
+  end as is_ship_before_purchase
   
 from priced)
 

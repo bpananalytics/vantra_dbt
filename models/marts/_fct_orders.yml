@@ -123,3 +123,7 @@ models:
       - name: is_loyalty_member
         data_type: boolean
         description: True when the customer is in the loyalty program.
+      
+      - name: is_ship_before_purchase
+        data_type: boolean
+        description: True when logged as shipped before purchase 
