@@ -29,11 +29,11 @@ models:
 
       - name: user_id
         data_type: string
-        description: Customer identifier. About 600 IDs were corrupted by Excel and are unrecoverable.
-
-      - name: product_id
-        data_type: string
-        description: Product identifier.
+        description: >
+          Customer identifier (8-character hex). 599 rows (483 IDs) were converted to
+          scientific notation by Excel (e.g. 1.76E+08) and the original IDs are unrecoverable.
+          The corrupted value is mostly consistent per customer (only 2 known IDs mix
+          customers), so these rows are kept and remain usable for customer-level analysis.
 
       - name: purchase_date
         data_type: date
@@ -82,7 +82,11 @@ models:
 
       - name: marketing_channel
         data_type: string
-        description: Marketing channel that brought the customer in.
+        description: Marketing channel that brought the customer in. Nulls mean channel was not recorded. 
+
+      - name: brand
+        data_type: string
+        description: product brand derived from product_name
 
       - name: account_creation_method
         data_type: string
