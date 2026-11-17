@@ -44,6 +44,14 @@ Every model, column, and source is documented in dbt, and the lineage graph abov
 - **Prices:** converted to `NUMERIC`; 158 $0 orders and 33 missing prices flagged
 - **Corrupted IDs:** ~770 order IDs and ~600 user IDs were converted to scientific notation by Excel; unrecoverable, documented
 - **Country lookup:** header row loaded as data removed; conflicting US duplicate resolved (placeholder 'x' dropped); 'North America' standardized to NA; missing regions filled for Benin (EMEA) and Bermuda (LATAM)
+- **Revenue rule:** $0 and missing-price orders excluded from revenue and order counts; refunded orders kept (gross revenue)
+- **Date checks:** 15 orders shipped before purchase are flagged (`is_ship_before_purchase`); no other date-order violations found
+- **Refund tracking:** refunds stop being recorded after Aug 2021, so refund analysis is limited to earlier purchases
+- **Product ID:** 58 IDs across 8 products, not tied to price, currency, or channel; dropped in favor of `product_name` as the product key
+- **Brand:** derived from product name (Apple, Samsung, Lenovo, Bose; the monitor is labeled Generic)
+- **Marketing channel:** 82 'unknown' values set to null; null = channel not recorded (1,469 rows)
+- **Currency:** 54 nulls left as-is; analysis uses USD only
+- **User IDs:** Excel-corrupted IDs are mostly consistent per customer (2 known collisions), so they're kept
 
 **Marts**
 - **Order grain:** 5 order IDs appear twice, differing only by refund date. Uniqueness is tested on `order_id` + `refund_date` rather than guessing which row is correct.
