@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: fct_segment_revenue_share
+    description: >
+      Revenue share by customer segment. One row per segment (4 rows), built from
+      dim_customer_segments. Answers which customer groups drive revenue relative
+      to their size. Revenue is gross (refunds kept); $0, missing-price and
+      null-date orders are excluded upstream. Percentages are stored as decimals
+      at full precision (0.16 = 16%); rounding is left to the dashboard.
+    columns:
+
+      - name: segment
+        description: >
+          Customer segment (primary key): loyal, at_risk, new_customer, or lapsed.
+          Repeat vs. one-time buyer × last purchase in 2022 vs. before.
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['loyal', 'at_risk', 'new_customer', 'lapsed']
+
+      - name: revenue
+        description: Total gross revenue (sum of usd_price) from customers in the segment.
+        data_tests:
+          - not_null
+
+      - name: customer_count
+        description: Number of customers in the segment.
+        data_tests:
+          - not_null
+
+      - name: avg_spend
+        description: Average revenue per customer in the segment (revenue / customer_count).
+        data_tests:
+          - not_null
+
+      - name: pct_of_customers
+        description: Segment's share of all customers, as a decimal (0.16 = 16%).
+        data_tests:
+          - not_null
+
+      - name: pct_of_revenue
+        description: Segment's share of total revenue, as a decimal (0.31 = 31%).
+        data_tests:
+          - not_null
+
+      - name: revenue_index
+        description: >
+          Share of revenue divided by share of customers (pct_of_revenue / pct_of_customers).
+          1.0 = average; above 1 means customers in this segment spend more than the
+          average customer, below 1 means less. Equivalent to avg_spend / overall average spend.
+        data_tests:
+          - not_null
