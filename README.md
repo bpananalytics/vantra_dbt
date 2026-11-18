@@ -25,7 +25,7 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 |---|---|---|
 | Raw | `core.main`, `core.country` | Untouched uploads |
 | Staging | `stg_orders`, `stg_countries` | Clean and standardize each source (built as views) |
-| Marts | `dim_countries`, `fct_orders`, `fct_region_revenue_growth`, `dim_customer_segments` | Business-ready tables for reporting (built as tables) |
+| Marts | `dim_countries`, `fct_orders`, `fct_region_revenue_growth`, `dim_customer_segments`, `fct_segment_revenue_share` | Business-ready tables for reporting (built as tables) |
 
 Every model, column, and source is documented in dbt, and the lineage graph above is generated from the code itself.
 
@@ -41,6 +41,8 @@ Every model, column, and source is documented in dbt, and the lineage graph abov
   |---|---|---|
   | **Repeat (2+ orders)** | Loyal (3,399) | At Risk (13,835) |
   | **One-time** | New (15,109) | Lapsed (55,197) |
+
+- **`fct_segment_revenue_share`**: one row per segment with customers, revenue, average spend, % of customers, % of revenue, and a revenue index (% of revenue ÷ % of customers; 1.0 = average, above 1 = each customer is worth more than average). Percentages are stored at full precision; rounding is left to the dashboard.
 
 ## Data Quality Issues Handled
 
@@ -67,12 +69,13 @@ Every model, column, and source is documented in dbt, and the lineage graph abov
 - **Impact:** together, orders without a region are ~0.15% of all orders; they are kept in `fct_orders` (left join) so no orders are dropped.
 - **Regional growth exclusions:** `fct_region_revenue_growth` excludes the 162 orders with no region and 3 orders with no purchase date. A row-count check caught the null dates: they formed their own "null quarter" groups, which would have sorted first in the growth calculation and skewed each region's first-quarter growth.
 - **Customer-level dedup:** `dim_customer_segments` collapses orders to one row per order before aggregating, so the 5 orders that appear twice (differing only by refund date) count once in order count and spend. Refunded orders are kept (gross), consistent with the revenue rule.
+- **Revenue reconciliation:** revenue reconciles to the cent ($28,078,739.20) from `fct_orders` through `dim_customer_segments` to `fct_segment_revenue_share` (see `analyses/segment_revenue_reconciliation.sql`).
 
 ## Testing
 
 dbt tests run on every build:
-- **Not null and uniqueness** on keys (`country_code` in `dim_countries`; `order_id` + `refund_date` combination in `fct_orders` via `dbt_utils`; `region` + `quarter` combination in `fct_region_revenue_growth`; `user_id` in `dim_customer_segments`)
-- **Accepted values** on region (APAC, EMEA, LATAM, NA) and on customer segment (loyal, at_risk, new_customer, lapsed)
+- **Not null and uniqueness** on keys (`country_code` in `dim_countries`; `order_id` + `refund_date` combination in `fct_orders` via `dbt_utils`; `region` + `quarter` combination in `fct_region_revenue_growth`; `user_id` in `dim_customer_segments`; `segment` in `fct_segment_revenue_share`)
+- **Accepted values** on region (APAC, EMEA, LATAM, NA) and on customer segment (loyal, at_risk, new_customer, lapsed) in both segment marts
 - **Referential integrity:** every order's country code must exist in `dim_countries` (geolocation pseudo-codes excluded and documented)
 - **Model contract** on `fct_orders`: column names and data types are enforced, so the table can't change shape silently
 - **Unit test** on `stg_orders` date parsing: fake rows cover all three source formats (m/d/yyyy, m/d/yyyy h:mm, Excel serial) plus junk values
