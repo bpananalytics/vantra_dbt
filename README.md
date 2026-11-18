@@ -24,8 +24,8 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 | Layer | Models | Purpose |
 |---|---|---|
 | Raw | `core.main`, `core.country` | Untouched uploads |
-| Staging | `stg_orders`, `stg_countries` | Clean and standardize each source |
-| Marts | `dim_countries`, `fct_orders`, `fct_region_revenue_growth` | Business-ready tables for reporting |
+| Staging | `stg_orders`, `stg_countries` | Clean and standardize each source (built as views) |
+| Marts | `dim_countries`, `fct_orders`, `fct_region_revenue_growth`, `dim_customer_segments` | Business-ready tables for reporting (built as tables) |
 
 Every model, column, and source is documented in dbt, and the lineage graph above is generated from the code itself.
 
@@ -35,6 +35,12 @@ Every model, column, and source is documented in dbt, and the lineage graph abov
 - **`dim_countries`**: one row per country code, mapped to a sales region (APAC, EMEA, LATAM, NA).
 - **`fct_orders`**: one row per order and refund date, enriched with region from `dim_countries`. Intentionally wide (BigQuery is columnar, so wide tables are cheap to query); countries are split into their own dimension because region mapping needed its own cleanup and tests.
 - **`fct_region_revenue_growth`**: one row per region per quarter (2019-Q1 to 2022-Q4) with revenue and quarter-over-quarter growth. Growth uses a window function (`LAG` partitioned by region), so each region is compared only to its own previous quarter; the first quarter per region has no prior quarter and is null.
+- **`dim_customer_segments`**: one row per customer (87,540) with order count, total spend, last purchase date, and segment. Segments are a 2×2 of repeat vs. one-time buyer × last purchase in 2022 vs. before:
+
+  | | Bought in 2022 | Last bought before 2022 |
+  |---|---|---|
+  | **Repeat (2+ orders)** | Loyal (3,399) | At Risk (13,835) |
+  | **One-time** | New (15,109) | Lapsed (55,197) |
 
 ## Data Quality Issues Handled
 
@@ -60,12 +66,13 @@ Every model, column, and source is documented in dbt, and the lineage graph abov
 - **Missing country codes:** 140 orders have no country code and no region.
 - **Impact:** together, orders without a region are ~0.15% of all orders; they are kept in `fct_orders` (left join) so no orders are dropped.
 - **Regional growth exclusions:** `fct_region_revenue_growth` excludes the 162 orders with no region and 3 orders with no purchase date. A row-count check caught the null dates: they formed their own "null quarter" groups, which would have sorted first in the growth calculation and skewed each region's first-quarter growth.
+- **Customer-level dedup:** `dim_customer_segments` collapses orders to one row per order before aggregating, so the 5 orders that appear twice (differing only by refund date) count once in order count and spend. Refunded orders are kept (gross), consistent with the revenue rule.
 
 ## Testing
 
 dbt tests run on every build:
-- **Not null and uniqueness** on keys (`country_code` in `dim_countries`; `order_id` + `refund_date` combination in `fct_orders` via `dbt_utils`; `region` + `quarter` combination in `fct_region_revenue_growth`)
-- **Accepted values** on region (APAC, EMEA, LATAM, NA)
+- **Not null and uniqueness** on keys (`country_code` in `dim_countries`; `order_id` + `refund_date` combination in `fct_orders` via `dbt_utils`; `region` + `quarter` combination in `fct_region_revenue_growth`; `user_id` in `dim_customer_segments`)
+- **Accepted values** on region (APAC, EMEA, LATAM, NA) and on customer segment (loyal, at_risk, new_customer, lapsed)
 - **Referential integrity:** every order's country code must exist in `dim_countries` (geolocation pseudo-codes excluded and documented)
 - **Model contract** on `fct_orders`: column names and data types are enforced, so the table can't change shape silently
 - **Unit test** on `stg_orders` date parsing: fake rows cover all three source formats (m/d/yyyy, m/d/yyyy h:mm, Excel serial) plus junk values
@@ -83,6 +90,8 @@ Known data gaps in staging are set to warn rather than fail.
 - Used `NUMERIC` for prices to avoid float rounding
 - Documented data quirks (corrupted IDs, null reasons, non-country codes) in column descriptions, not just in code comments
 - Fixed load issues in staging, leaving raw tables untouched
+- Simplified RFM to a recency × repeat 2×2 after profiling showed 80% of customers ordered only once, so frequency and spend tiers added little signal
+- Built staging as views and marts as tables: staging is intermediate, marts are what dashboards and analysis read
 
 ## Tools
 
