@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: dim_customer_segments
+    description: table for customer segments
+    config: 
+      materialized: table
+    columns:
+      - name: user_id
+        description: unique identifier for user_id
+        data_tests:
+          - unique 
+          - not_null
+      - name: order_count
+        description: count of orders, from order_id
+        data_tests:
+          - not_null
+      - name: total_spent
+        description: amount each customer spent, from usd_price
+        data_tests:
+          - not_null
+      - name: last_purchase_date
+        description: date of last purchase, from purchase_date
+        data_tests:
+          - not_null
+      - name: segment
+        description: partition of customers by order_count and last_purchase_date
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['loyal','at_risk','new_customer','lapsed']

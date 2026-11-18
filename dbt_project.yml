@@ -37,6 +37,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   vantra:
-  # Staging models built as tables
+    # Staging models built as views (intermediate, not queried directly)
     staging:
+      +materialized: view
+    # Marts built as tables (read by dashboards and analysis)
+    marts:
       +materialized: table
