@@ -25,7 +25,7 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 |---|---|---|
 | Raw | `core.main`, `core.country` | Untouched uploads |
 | Staging | `stg_orders`, `stg_countries` | Clean and standardize each source |
-| Marts | `dim_countries`, `fct_orders` | Business-ready tables for reporting |
+| Marts | `dim_countries`, `fct_orders`, `fct_region_revenue_growth` | Business-ready tables for reporting |
 
 Every model, column, and source is documented in dbt, and the lineage graph above is generated from the code itself.
 
@@ -34,6 +34,7 @@ Every model, column, and source is documented in dbt, and the lineage graph abov
 
 - **`dim_countries`**: one row per country code, mapped to a sales region (APAC, EMEA, LATAM, NA).
 - **`fct_orders`**: one row per order and refund date, enriched with region from `dim_countries`. Intentionally wide (BigQuery is columnar, so wide tables are cheap to query); countries are split into their own dimension because region mapping needed its own cleanup and tests.
+- **`fct_region_revenue_growth`**: one row per region per quarter (2019-Q1 to 2022-Q4) with revenue and quarter-over-quarter growth. Growth uses a window function (`LAG` partitioned by region), so each region is compared only to its own previous quarter; the first quarter per region has no prior quarter and is null.
 
 ## Data Quality Issues Handled
 
@@ -58,11 +59,12 @@ Every model, column, and source is documented in dbt, and the lineage graph abov
 - **Non-country location codes:** a relationships test caught 22 orders coded `EU`, `AP`, or `A1`. These are IP-geolocation codes ("Europe," "Asia/Pacific," "anonymous proxy"), not countries. They are left without a region rather than assumed, and excluded from the relationships test.
 - **Missing country codes:** 140 orders have no country code and no region.
 - **Impact:** together, orders without a region are ~0.15% of all orders; they are kept in `fct_orders` (left join) so no orders are dropped.
+- **Regional growth exclusions:** `fct_region_revenue_growth` excludes the 162 orders with no region and 3 orders with no purchase date. A row-count check caught the null dates: they formed their own "null quarter" groups, which would have sorted first in the growth calculation and skewed each region's first-quarter growth.
 
 ## Testing
 
 dbt tests run on every build:
-- **Not null and uniqueness** on keys (`country_code` in `dim_countries`; `order_id` + `refund_date` combination in `fct_orders` via `dbt_utils`)
+- **Not null and uniqueness** on keys (`country_code` in `dim_countries`; `order_id` + `refund_date` combination in `fct_orders` via `dbt_utils`; `region` + `quarter` combination in `fct_region_revenue_growth`)
 - **Accepted values** on region (APAC, EMEA, LATAM, NA)
 - **Referential integrity:** every order's country code must exist in `dim_countries` (geolocation pseudo-codes excluded and documented)
 - **Model contract** on `fct_orders`: column names and data types are enforced, so the table can't change shape silently
