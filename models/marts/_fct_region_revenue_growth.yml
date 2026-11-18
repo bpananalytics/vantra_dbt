@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: fct_region_revenue_growth
+    description: >
+      Quarterly revenue and quarter-over-quarter growth by region. One row per
+      region per quarter (2019-Q1 to 2022-Q4). Built from fct_orders: excludes
+      $0 and missing prices, orders with no region (162 rows), and orders with a
+      null purchase date (3 rows). Refunded orders are kept.
+    config:
+      materialized: table
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - region
+              - quarter
+    columns:
+
+      - name: region
+        description: Sales region (APAC, EMEA, LATAM, NA), from dim_countries.
+        data_type: string
+        data_tests:
+          - not_null
+
+      - name: quarter
+        description: Year and quarter of purchase, formatted as YYYY-QN (e.g. 2019-Q1).
+        data_type: string
+        data_tests:
+          - not_null
+
+      - name: revenue
+        description: Total usd_price of orders in the region and quarter.
+        data_type: numeric
+        data_tests:
+          - not_null
+
+      - name: growth_rate
+        description: >
+          Quarter-over-quarter revenue growth as a decimal (0.21 = 21%), calculated
+          as this quarter's revenue / previous quarter's revenue - 1. Null in each
+          region's first quarter (2019-Q1), which has no prior quarter.
+        data_type: numeric
