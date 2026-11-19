@@ -24,8 +24,8 @@ Which brands, regions, and customer segments drive revenue for Vantra Electronic
 | Layer | Models | Purpose |
 |---|---|---|
 | Raw | `core.main`, `core.country` | Untouched uploads |
-| Staging | `stg_orders`, `stg_countries` | Clean and standardize each source (built as views) |
-| Marts | `dim_countries`, `fct_orders`, `fct_region_revenue_growth`, `dim_customer_segments`, `fct_segment_revenue_share` | Business-ready tables for reporting (built as tables) |
+| Staging | [`stg_orders`](models/staging/stg_orders.sql), [`stg_countries`](models/staging/stg_countries.sql) | Clean and standardize each source (built as views) |
+| Marts | [`dim_countries`](models/marts/dim_countries.sql), [`fct_orders`](models/marts/fct_orders.sql), [`fct_region_revenue_growth`](models/marts/fct_region_revenue_growth.sql), [`dim_customer_segments`](models/marts/dim_customer_segments.sql), [`fct_segment_revenue_share`](models/marts/fct_segment_revenue_share.sql) | Business-ready tables for reporting (built as tables) |
 
 Every model, column, and source is documented in dbt, and the lineage graph above is generated from the code itself. → [**Browse the dbt docs site**](https://bpananalytics.github.io/vantra_dbt/)
 
