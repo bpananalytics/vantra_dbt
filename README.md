@@ -1,11 +1,14 @@
 # Vantra dbt Pipeline
 
-📊 **Business analysis:** Findings and recommendations → [**View the Vantra analysis**](https://github.com/bpananalytics/Vantra_Electronics_Analysis)
+An analytics engineering pipeline rebuilt with **dbt** and **BigQuery**, turning raw e-commerce order data into clean, tested, analysis-ready tables.
 
-📋 **Roadmap and sprint tracking:** Follow my progress → [**Vantra project board**](https://github.com/users/bpananalytics/projects/1/views/1)
-
-An analytics engineering pipeline re-built using **dbt** and **BigQuery**, transforming raw e-commerce order data into clean, tested, analysis-ready tables.
-
+| | |
+|---|---|
+| 📊 [**Business analysis**](https://github.com/bpananalytics/Vantra_Electronics_Analysis) | Findings, notebooks, and recommendations |
+| 📈 [**Dashboard**](https://public.tableau.com/app/profile/brian.pan7659/viz/Vantra_Dashboard/Dashboard1) | Revenue by region and customer segment |
+| 📚 [**dbt docs**](https://bpananalytics.github.io/vantra_dbt/) | Browse every model, column, and lineage |
+| 🗂️ [**Project management**](project/) | Plan, decisions, risks, and retrospective |
+| 📋 [**Roadmap**](https://github.com/users/bpananalytics/projects/1/views/1) | Sprint tracking on the project board |
 ## Business Question
 
 Which brands, regions, and customer segments drive revenue for Vantra Electronics, and how did that change after the 2020 peak?
