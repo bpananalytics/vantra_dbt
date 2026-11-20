@@ -1,6 +1,6 @@
 # Vantra: Project Management
 
-How the Vantra project was planned, tracked, and delivered. Work was tracked on the [**Vantra project board**](https://github.com/users/bpananalytics/projects/1/views/1); these documents record the plan, the decisions behind it, and what was learned.
+How the Vantra project was planned, tracked, and delivered. Work was tracked for the pipeline creation on the [**Vantra project board**](https://github.com/users/bpananalytics/projects/1/views/1); these documents record the plan, the decisions behind it, and what was learned.
 
 ## At a glance
 
